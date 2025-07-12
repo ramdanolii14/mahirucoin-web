@@ -27,6 +27,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
+      console.log('API KEY:', API_KEY)
       const coinRes = await fetch(`https://rugplay.com/api/v1/coin/${SYMBOL}`, {
         headers: { Authorization: `Bearer ${API_KEY}` },
       })
