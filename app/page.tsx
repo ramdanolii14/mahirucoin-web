@@ -1,10 +1,4 @@
-'use client'
-
-import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-
-const API_KEY = process.env.NEXT_PUBLIC_RUGPLAY_API_KEY
-const SYMBOL = 'MHC'
 
 type Coin = {
   currentPrice: number
@@ -21,30 +15,36 @@ type Holder = {
   percentage: number
 }
 
-export default function Home() {
-  const [coin, setCoin] = useState<Coin | null>(null)
-  const [holders, setHolders] = useState<Holder[]>([])
+type Props = {
+  coin: Coin
+  holders: Holder[]
+}
 
-  useEffect(() => {
-    async function fetchData() {
-      console.log('API KEY:', API_KEY)
-      const coinRes = await fetch(`https://rugplay.com/api/v1/coin/${SYMBOL}`, {
-        headers: { Authorization: `Bearer ${API_KEY}` },
-      })
-      const coinData = await coinRes.json()
-      setCoin(coinData.coin)
+export async function getServerSideProps() {
+  const API_KEY = process.env.RUGPLAY_API_KEY // gunakan dari ENV server-side
+  const SYMBOL = 'MHC'
 
-      const holdersRes = await fetch(`https://rugplay.com/api/v1/holders/${SYMBOL}`, {
-        headers: { Authorization: `Bearer ${API_KEY}` },
-      })
-      const holdersData = await holdersRes.json()
-      setHolders(holdersData.holders)
-    }
-    fetchData()
-  }, [])
+  const [coinRes, holdersRes] = await Promise.all([
+    fetch(`https://rugplay.com/api/v1/coin/${SYMBOL}`, {
+      headers: { Authorization: `Bearer ${API_KEY}` },
+    }),
+    fetch(`https://rugplay.com/api/v1/holders/${SYMBOL}`, {
+      headers: { Authorization: `Bearer ${API_KEY}` },
+    }),
+  ])
 
-  if (!coin) return <div className="text-white p-8">Loading Mahiru Coin data...</div>
+  const coinData = await coinRes.json()
+  const holdersData = await holdersRes.json()
 
+  return {
+    props: {
+      coin: coinData.coin,
+      holders: holdersData.holders,
+    },
+  }
+}
+
+export default function Home({ coin, holders }: Props) {
   return (
     <div
       className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8 space-y-12"
@@ -76,13 +76,7 @@ export default function Home() {
       <div className="bg-gray-900 bg-opacity-90 border border-pink-400 rounded-2xl shadow-lg p-6 w-full max-w-2xl space-y-4">
         <h2 className="text-2xl font-semibold text-pink-300">🛣️ Roadmap</h2>
         <ul className="list-disc text-gray-200 pl-6">
-          {[
-            'Phase 0: Tercipta karena waifu — ✅',
-            'Phase 1: Dominasi supply — ✅',
-            'Phase 2: Narasi proyek Web3 — 🔄',
-            'Phase 3: Janji kolaborasi dan listing — 🔜',
-            'Phase 4: Either rug or moon — 🔥',
-          ].map((step, idx) => (
+          {[ 'Phase 0: Tercipta karena waifu — ✅', 'Phase 1: Dominasi supply — ✅', 'Phase 2: Narasi proyek Web3 — 🔄', 'Phase 3: Janji kolaborasi dan listing — 🔜', 'Phase 4: Either rug or moon — 🔥' ].map((step, idx) => (
             <li key={idx}>{step}</li>
           ))}
         </ul>
