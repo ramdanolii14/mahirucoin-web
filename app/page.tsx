@@ -6,9 +6,24 @@ import { motion } from 'framer-motion'
 const API_KEY = process.env.NEXT_PUBLIC_RUGPLAY_API_KEY
 const SYMBOL = 'MHC'
 
+type Coin = {
+  currentPrice: number
+  marketCap: number
+  volume24h: number
+  circulatingSupply: number
+  symbol: string
+  creatorUsername: string
+}
+
+type Holder = {
+  rank: number
+  username: string
+  percentage: number
+}
+
 export default function Home() {
-  const [coin, setCoin] = useState<any>(null)
-  const [holders, setHolders] = useState<any[]>([])
+  const [coin, setCoin] = useState<Coin | null>(null)
+  const [holders, setHolders] = useState<Holder[]>([])
 
   useEffect(() => {
     async function fetchData() {
